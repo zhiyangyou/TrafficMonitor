@@ -24,7 +24,7 @@ LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 // Dialog
 //
 
-IDD_OPTIONS_DIALOG DIALOGEX 0, 0, 320, 220
+IDD_OPTIONS_DIALOG DIALOGEX 0, 0, 320, 320
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "ClaudeTokenMonitor 设置"
 FONT 9, "Microsoft YaHei UI", 400, 0, 0x0
@@ -33,27 +33,35 @@ BEGIN
     LTEXT           "(检测中...)", IDC_STATIC_STATUS, 47, 7, 260, 10
     PUSHBUTTON      "安装 wrapper", IDC_BTN_INSTALL, 7, 22, 80, 16
     PUSHBUTTON      "卸载 wrapper", IDC_BTN_UNINSTALL, 92, 22, 80, 16
-    GROUPBOX        "汇总模式", IDC_STATIC, 7, 44, 306, 60
-    LTEXT           "模式：", IDC_STATIC, 15, 60, 32, 10
-    COMBOBOX        IDC_CBO_AGGREGATE_MODE, 50, 58, 100, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "单 session：", IDC_STATIC, 15, 80, 50, 10
-    COMBOBOX        IDC_CBO_SINGLE_SESSION, 70, 78, 120, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "刷新 sessions", IDC_BTN_REFRESH_SESSIONS, 200, 78, 100, 14
-    LTEXT           "忽略：", IDC_STATIC, 15, 95, 30, 10
-    LISTBOX         IDC_LST_IGNORED, 50, 95, 250, 8, LBS_MULTIPLESEL | WS_BORDER
-    GROUPBOX        "颜色", IDC_STATIC, 7, 110, 306, 50
-    LTEXT           "Token In：", IDC_STATIC, 15, 124, 50, 10
-    CONTROL         "",IDC_CLR_INPUT,"MFCColorButton",WS_TABSTOP,70,122,30,14
-    LTEXT           "Cache Write：", IDC_STATIC, 115, 124, 70, 10
-    CONTROL         "",IDC_CLR_CACHE_WRITE,"MFCColorButton",WS_TABSTOP,190,122,30,14
-    LTEXT           "Cache Read：", IDC_STATIC, 15, 142, 60, 10
-    CONTROL         "",IDC_CLR_CACHE_READ,"MFCColorButton",WS_TABSTOP,80,140,30,14
-    LTEXT           "Token Out：", IDC_STATIC, 130, 142, 60, 10
-    CONTROL         "",IDC_CLR_OUTPUT,"MFCColorButton",WS_TABSTOP,195,140,30,14    GROUPBOX        "其他", IDC_STATIC, 7, 166, 306, 30
-    LTEXT           "刷新频率(ms)：", IDC_STATIC, 15, 180, 70, 10
-    EDITTEXT        IDC_SPIN_REFRESH, 90, 178, 50, 14, ES_AUTOHSCROLL | ES_NUMBER
-    DEFPUSHBUTTON   "确定", IDOK, 200, 200, 50, 14
-    PUSHBUTTON      "取消", IDCANCEL, 260, 200, 50, 14
+    LTEXT           "wrapper:", IDC_STATIC, 7, 42, 40, 10
+    LTEXT           "", IDC_STATIC_WRAPPER_PATH, 47, 42, 266, 10
+    LTEXT           "sidecar:", IDC_STATIC, 7, 54, 40, 10
+    LTEXT           "", IDC_STATIC_SIDECAR_PATH, 47, 54, 266, 10
+    LTEXT           "settings:", IDC_STATIC, 7, 66, 40, 10
+    LTEXT           "", IDC_STATIC_SETTINGS_PATH, 47, 66, 266, 10
+    GROUPBOX        "汇总模式", IDC_STATIC, 7, 82, 306, 60
+    LTEXT           "模式：", IDC_STATIC, 15, 98, 32, 10
+    COMBOBOX        IDC_CBO_AGGREGATE_MODE, 50, 96, 100, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "单 session：", IDC_STATIC, 15, 118, 50, 10
+    COMBOBOX        IDC_CBO_SINGLE_SESSION, 70, 116, 120, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "刷新 sessions", IDC_BTN_REFRESH_SESSIONS, 200, 116, 100, 14
+    LTEXT           "忽略：", IDC_STATIC, 15, 133, 30, 10
+    LISTBOX         IDC_LST_IGNORED, 50, 133, 250, 30, LBS_MULTIPLESEL | WS_BORDER
+    GROUPBOX        "颜色", IDC_STATIC, 7, 168, 306, 50
+    LTEXT           "Token In：", IDC_STATIC, 15, 182, 50, 10
+    CONTROL         "",IDC_CLR_INPUT,"MFCColorButton",WS_TABSTOP,70,180,30,14
+    LTEXT           "Cache Write：", IDC_STATIC, 115, 182, 70, 10
+    CONTROL         "",IDC_CLR_CACHE_WRITE,"MFCColorButton",WS_TABSTOP,190,180,30,14
+    LTEXT           "Cache Read：", IDC_STATIC, 15, 200, 60, 10
+    CONTROL         "",IDC_CLR_CACHE_READ,"MFCColorButton",WS_TABSTOP,80,198,30,14
+    LTEXT           "Token Out：", IDC_STATIC, 130, 200, 60, 10
+    CONTROL         "",IDC_CLR_OUTPUT,"MFCColorButton",WS_TABSTOP,195,198,30,14
+    GROUPBOX        "其他", IDC_STATIC, 7, 224, 306, 36
+    LTEXT           "刷新频率(ms)：", IDC_STATIC, 15, 238, 70, 10
+    EDITTEXT        IDC_EDIT_REFRESH, 90, 236, 50, 14, ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_REFRESH,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_NOTHOUSANDS,140,236,12,14
+    DEFPUSHBUTTON   "确定", IDOK, 200, 270, 50, 14
+    PUSHBUTTON      "取消", IDCANCEL, 260, 270, 50, 14
 END
 
 /////////////////////////////////////////////////////////////////////////////
@@ -69,7 +77,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 313
         TOPMARGIN, 7
-        BOTTOMMARGIN, 213
+        BOTTOMMARGIN, 313
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -156,7 +164,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
-IDD_OPTIONS_DIALOG DIALOGEX 0, 0, 320, 220
+IDD_OPTIONS_DIALOG DIALOGEX 0, 0, 320, 320
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "ClaudeTokenMonitor Settings"
 FONT 9, "Segoe UI", 400, 0, 0x0
@@ -165,28 +173,35 @@ BEGIN
     LTEXT           "(detecting...)", IDC_STATIC_STATUS, 47, 7, 260, 10
     PUSHBUTTON      "Install wrapper", IDC_BTN_INSTALL, 7, 22, 80, 16
     PUSHBUTTON      "Uninstall wrapper", IDC_BTN_UNINSTALL, 92, 22, 80, 16
-    GROUPBOX        "Aggregation", IDC_STATIC, 7, 44, 306, 60
-    LTEXT           "Mode:", IDC_STATIC, 15, 60, 32, 10
-    COMBOBOX        IDC_CBO_AGGREGATE_MODE, 50, 58, 100, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Single session:", IDC_STATIC, 15, 80, 60, 10
-    COMBOBOX        IDC_CBO_SINGLE_SESSION, 80, 78, 120, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Refresh sessions", IDC_BTN_REFRESH_SESSIONS, 200, 78, 100, 14
-    LTEXT           "Ignore:", IDC_STATIC, 15, 95, 30, 10
-    LISTBOX         IDC_LST_IGNORED, 50, 95, 250, 8, LBS_MULTIPLESEL | WS_BORDER
-    GROUPBOX        "Colors", IDC_STATIC, 7, 110, 306, 50
-    LTEXT           "Token In:", IDC_STATIC, 15, 124, 50, 10
-    CONTROL         "",IDC_CLR_INPUT,"MFCColorButton",WS_TABSTOP,70,122,30,14
-    LTEXT           "Cache Write:", IDC_STATIC, 115, 124, 70, 10
-    CONTROL         "",IDC_CLR_CACHE_WRITE,"MFCColorButton",WS_TABSTOP,190,122,30,14
-    LTEXT           "Cache Read:", IDC_STATIC, 15, 142, 60, 10
-    CONTROL         "",IDC_CLR_CACHE_READ,"MFCColorButton",WS_TABSTOP,80,140,30,14
-    LTEXT           "Token Out:", IDC_STATIC, 130, 142, 60, 10
-    CONTROL         "",IDC_CLR_OUTPUT,"MFCColorButton",WS_TABSTOP,195,140,30,14
-    GROUPBOX        "Other", IDC_STATIC, 7, 166, 306, 30
-    LTEXT           "Refresh (ms):", IDC_STATIC, 15, 180, 70, 10
-    EDITTEXT        IDC_SPIN_REFRESH, 90, 178, 50, 14, ES_AUTOHSCROLL | ES_NUMBER
-    DEFPUSHBUTTON   "OK", IDOK, 200, 200, 50, 14
-    PUSHBUTTON      "Cancel", IDCANCEL, 260, 200, 50, 14
+    LTEXT           "wrapper:", IDC_STATIC, 7, 42, 40, 10
+    LTEXT           "", IDC_STATIC_WRAPPER_PATH, 47, 42, 266, 10
+    LTEXT           "sidecar:", IDC_STATIC, 7, 54, 40, 10
+    LTEXT           "", IDC_STATIC_SIDECAR_PATH, 47, 54, 266, 10
+    LTEXT           "settings:", IDC_STATIC, 7, 66, 40, 10
+    LTEXT           "", IDC_STATIC_SETTINGS_PATH, 47, 66, 266, 10
+    GROUPBOX        "Aggregation", IDC_STATIC, 7, 82, 306, 60
+    LTEXT           "Mode:", IDC_STATIC, 15, 98, 32, 10
+    COMBOBOX        IDC_CBO_AGGREGATE_MODE, 50, 96, 100, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Single session:", IDC_STATIC, 15, 118, 60, 10
+    COMBOBOX        IDC_CBO_SINGLE_SESSION, 80, 116, 120, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Refresh sessions", IDC_BTN_REFRESH_SESSIONS, 200, 116, 100, 14
+    LTEXT           "Ignore:", IDC_STATIC, 15, 133, 30, 10
+    LISTBOX         IDC_LST_IGNORED, 50, 133, 250, 30, LBS_MULTIPLESEL | WS_BORDER
+    GROUPBOX        "Colors", IDC_STATIC, 7, 168, 306, 50
+    LTEXT           "Token In:", IDC_STATIC, 15, 182, 50, 10
+    CONTROL         "",IDC_CLR_INPUT,"MFCColorButton",WS_TABSTOP,70,180,30,14
+    LTEXT           "Cache Write:", IDC_STATIC, 115, 182, 70, 10
+    CONTROL         "",IDC_CLR_CACHE_WRITE,"MFCColorButton",WS_TABSTOP,190,180,30,14
+    LTEXT           "Cache Read:", IDC_STATIC, 15, 200, 60, 10
+    CONTROL         "",IDC_CLR_CACHE_READ,"MFCColorButton",WS_TABSTOP,80,198,30,14
+    LTEXT           "Token Out:", IDC_STATIC, 130, 200, 60, 10
+    CONTROL         "",IDC_CLR_OUTPUT,"MFCColorButton",WS_TABSTOP,195,198,30,14
+    GROUPBOX        "Other", IDC_STATIC, 7, 224, 306, 36
+    LTEXT           "Refresh (ms):", IDC_STATIC, 15, 238, 70, 10
+    EDITTEXT        IDC_EDIT_REFRESH, 90, 236, 50, 14, ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_REFRESH,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_NOTHOUSANDS,140,236,12,14
+    DEFPUSHBUTTON   "OK", IDOK, 200, 270, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 260, 270, 50, 14
 END
 
 /////////////////////////////////////////////////////////////////////////////

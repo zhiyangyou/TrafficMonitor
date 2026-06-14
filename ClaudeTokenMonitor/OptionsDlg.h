@@ -1,11 +1,13 @@
 #pragma once
 #include "pch.h"
+#include <afxcolorbutton.h>
 #include "DataManager.h"
 
-// COptionsDlg — MFC options dialog for ClaudeTokenMonitor.
-// Reference: plan §6 OptionsDlg 控件表; PluginDemo/OptionsDlg.h
-// All OnXxx handlers below are TODO skeletons; OK path writes back m_data to CDataManager.
-// TODO detail: .claude/skills/claude-token-monitor/references/topics/wrapper-installer.md
+// COptionsDlg -- MFC options dialog for ClaudeTokenMonitor.
+// Reference: plan section 6 control table; PluginDemo/OptionsDlg.h
+// OnInitDialog fills all controls from m_data and reflects wrapper install state.
+// OnOK pulls control state back into m_data; caller copies it into CDataManager.
+// Detail: .claude/skills/claude-token-monitor/references/topics/wrapper-installer.md
 class COptionsDlg : public CDialog
 {
     DECLARE_DYNAMIC(COptionsDlg)
@@ -18,8 +20,8 @@ public:
     enum { IDD = IDD_OPTIONS_DIALOG };
 #endif
 
-    // Bound to CDataManager::Instance().m_setting_data before DoModal().
-    // On IDOK, the caller copies this back into CDataManager (PluginDemo pattern).
+    // Bound to CDataManager::Instance().Settings() before DoModal().
+    // On IDOK the caller copies this back into CDataManager (PluginDemo pattern).
     SettingData m_data;
 
 protected:
@@ -30,13 +32,32 @@ protected:
     DECLARE_MESSAGE_MAP()
 
 public:
-    // Status static — wrapper state label
+    // Button handlers (BN_CLICKED)
     afx_msg void OnBnClickedInstall();
     afx_msg void OnBnClickedUninstall();
     afx_msg void OnBnClickedRefreshSessions();
 
-    // TODO: bind CMFCColorButton controls (IDC_CLR_INPUT / IDC_CLR_CACHE_WRITE / IDC_CLR_CACHE_READ / IDC_CLR_OUTPUT)
-    // TODO: bind CComboBox IDC_CBO_AGGREGATE_MODE and IDC_CBO_SINGLE_SESSION
-    // TODO: bind CListCtrl IDC_LST_IGNORED with checkboxes
-    // TODO: bind CSpinButtonCtrl IDC_SPIN_REFRESH for refresh_interval_ms
+    // Re-populate the session combo + ignored list from CDataManager::GetActiveSessions().
+    // Preserves m_data.single_session_id + m_data.ignored_sessions selection where possible.
+    void ReloadSessionControls();
+
+    // Refresh the status static, path statics, and enable/disable Install/Uninstall
+    // buttons based on CStatuslineInstaller::CheckInstalled() result.
+    void RefreshWrapperState();
+
+private:
+    // DDX-bound control variables
+    CComboBox       m_cbo_aggregate_mode;
+    CComboBox       m_cbo_single_session;
+    CListBox        m_lst_ignored;
+    CMFCColorButton m_clr_input;
+    CMFCColorButton m_clr_cache_write;
+    CMFCColorButton m_clr_cache_read;
+    CMFCColorButton m_clr_output;
+    CSpinButtonCtrl m_spin_refresh;
+    CEdit           m_edit_refresh;
+    CStatic         m_static_status;
+    CStatic         m_static_wrapper_path;
+    CStatic         m_static_sidecar_path;
+    CStatic         m_static_settings_path;
 };

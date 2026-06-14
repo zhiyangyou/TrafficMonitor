@@ -54,4 +54,8 @@ private:
     std::wstring m_path;
     HANDLE m_hFile{ INVALID_HANDLE_VALUE };
     ULONGLONG m_last_offset{};
+    // Holds partial trailing bytes from previous ReadChunk that did not end on '\n'.
+    // Concatenated with the next chunk before line splitting. Cleared once a
+    // complete line is recovered.
+    std::string m_residual_buffer;
 };

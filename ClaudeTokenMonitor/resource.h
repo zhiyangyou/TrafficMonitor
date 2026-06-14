@@ -23,6 +23,10 @@
 #define IDC_CLR_OUTPUT                  1010
 #define IDC_SPIN_REFRESH                1011
 #define IDC_STATIC_STATUS               1012
+#define IDC_EDIT_REFRESH                1013
+#define IDC_STATIC_WRAPPER_PATH         1014
+#define IDC_STATIC_SIDECAR_PATH         1015
+#define IDC_STATIC_SETTINGS_PATH        1016
 
 // Next default values for new objects
 //
@@ -30,7 +34,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        104
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1013
+#define _APS_NEXT_CONTROL_VALUE         1017
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

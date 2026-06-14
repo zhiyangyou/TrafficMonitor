@@ -32,6 +32,7 @@
     <ClInclude Include="RingBuffer.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="SidecarReader.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="StatuslineInstaller.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="TaskbarItemRegistrar.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="TokenItem.h"><Filter>Header Files</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +44,7 @@
     <ClCompile Include="RingBuffer.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="SidecarReader.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="StatuslineInstaller.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="TaskbarItemRegistrar.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="TokenItem.cpp"><Filter>Source Files</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>

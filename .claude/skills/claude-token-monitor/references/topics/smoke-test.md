@@ -5,6 +5,7 @@
 ## 1. 流程
 
 ```
+[0] 关闭 Monitor 进程      ← 强制前置（任务 27 新约束）
 [1] 编译插件 DLL
 [2] 验证插件导出   (dumpbin -EXPORTS → TMPluginGetInstance)
 [3] 验证插件架构   (dumpbin -HEADERS → machine = x64)
@@ -16,6 +17,11 @@
 ```
 
 任何一步失败 → 冒烟测试不通过，必须修复后重跑。
+
+**步骤 [0] 是 2026-06-14 起的硬性约束**：
+
+- **为什么**：之前一次跑冒烟测试时，旧的 TrafficMonitor.exe 进程还活着（之前的 session 启动后没回收），MSBuild 编译时 `TrafficMonitor.exe` 处于被加载状态 → 新编译出来的 exe **无法被覆盖**，导致静默运行旧版本 + 跑的是新编译 DLL，但**主程序本身是旧的** → 任何主程序源码相关的修改（plugin 协议字段、API 行为）都不会反映出来。**冒烟测试报告 PASS，但实际是假象**。
+- **前置关闭是冒烟测试可信度的唯一保障**。
 
 **关键判据**：步骤 [7] 是"插件真的能跑起来"的**唯一可靠证据**。前面 6 步都只是"代码静态正确"，只有真启动 TrafficMonitor.exe 并看到 LoadLibrary 成功（= 进程稳定不闪退 + 内存稳定在 ~80-90MB），才证明：
 - `TMPluginGetInstance` 能正确返回 `&Instance()`
@@ -150,6 +156,35 @@ powershell -Command "Stop-Process -Name TrafficMonitor -Force"
 ```
 
 如果仍 `Access is denied`，说明沙箱隔离生效——可忽略，进程会随 session 结束被回收。
+
+## 2.8 步骤 0：关闭 Monitor 进程（**强制前置**）
+
+```bash
+# 1. 检查是否在跑
+tasklist 2>/dev/null | grep -i traffic
+# → 如果有输出，进程在跑，必须先杀
+
+# 2. 杀进程（沙箱外：用 taskkill 直接按 PID）
+taskkill //F //IM TrafficMonitor.exe 2>/dev/null
+# 沙箱内：用 powershell Stop-Process
+powershell -Command "Stop-Process -Name TrafficMonitor -Force -ErrorAction SilentlyContinue" 2>/dev/null
+
+# 3. 等待 2 秒（确保文件句柄释放）
+sleep 2
+
+# 4. 再次检查（必须空）
+tasklist 2>/dev/null | grep -i traffic || echo "CLEAN - safe to rebuild"
+```
+
+**为什么必须**：
+- 主程序 .exe 加载时占用 `TrafficMonitor.exe` 文件句柄 → 编译会失败 `LNK1168 / MSB8013` "无法写入"
+- DLL 加载时占用 `ClaudeTokenMonitor.dll` 文件句柄 → 编译后 dll 旧版本会被静默锁定
+- 即使编译"成功"，新代码不会在主程序运行实例里生效（运行的是旧镜像）
+
+**失败模式**：跳过步骤 0 直接编译，可能出现：
+- LNK1168 "无法打开文件 TrafficMonitor.exe 进行写入"
+- MSB8013 警告 "the file has been modified since the prebuild event"
+- 看似编译成功但主程序仍跑旧版本（最危险 — 假 PASS）
 
 ## 5. 集成测试（暂未自动化）
 

@@ -1,7 +1,7 @@
 // TokenItem.cpp — CTokenItem base class impl. 4 instances (Token In / Cache Write /
 // Cache Read / Token Out) share this code, differing only in constructor args.
-// Reference: plan §4.3 DrawItem(); PluginDemo/CustomDrawItem.cpp
-// TODO detail: .claude/skills/claude-token-monitor/references/topics/custom-draw.md
+// Reference: plan section 4.3 DrawItem(); PluginDemo/CustomDrawItem.cpp
+// Detail: .claude/skills/claude-token-monitor/references/topics/custom-draw.md
 
 #include "pch.h"
 #include "TokenItem.h"
@@ -61,7 +61,7 @@ const wchar_t* CTokenItem::GetItemValueSampleText() const
 
 bool CTokenItem::IsCustomDraw() const
 {
-    // MUST be true — see plan §1 architecture discovery: main program scrolling-bar branch
+    // MUST be true — see plan section 1 architecture discovery: main program scrolling-bar branch
     // (TaskBarDlg.cpp:397-398) doesn't accept IPluginItem*, so plugin must self-draw.
     // Reference: include/PluginInterface.h:53; TrafficMonitor/TaskBarDlg.cpp:426-457
     return true;
@@ -82,7 +82,7 @@ int CTokenItem::GetItemWidthEx(void* hDC) const
 
 void CTokenItem::DrawItem(void* hDC, int x, int y, int w, int h, bool dark_mode)
 {
-    // Layout (per plan §4.3):
+    // Layout (per plan section 4.3):
     //   text_w = 40        // right side for value text "12.3k/s"
     //   bar_w  = w - text_w
     //   bar_rect  = (x, y, x + bar_w,       y + h)
@@ -94,24 +94,44 @@ void CTokenItem::DrawItem(void* hDC, int x, int y, int w, int h, bool dark_mode)
     CRect text_rect(x + bar_w, y, x + w, y + h);
 
     // Color from SettingData (overrides constructor color if user changed it).
-    // TODO: pull live color from CDataManager::Instance().GetItemColor(m_category) so user changes
-    //   in COptionsDlg reflect immediately.
-    COLORREF color = m_color;
+    COLORREF color = CDataManager::Instance().GetItemColor(m_category);
     if (dark_mode)
     {
-        // TODO: optional dark-mode shade shift (e.g. multiply RGB by 0.7) — leave as identity for v1.
+        // Optional dark-mode shade shift — leave as identity for v1. Color stays
+        // at user's chosen value; the plugin does not auto-darken.
     }
 
-    // TODO: draw bars — iterate m_history (CRingBuffer<float>) via CDataManager::GetGraphValue
-    //   walk; but ring buffer lives in CDataManager, not in CTokenItem. The cleanest path is to
-    //   add a CDataManager::GetGraphHistory(TokenCategory) accessor returning const CRingBuffer*&.
-    //   For skeleton: leave the iteration loop as a placeholder drawing nothing — call sites compile
-    //   but no bars render yet.
-    // Reference: plan §4.3 draw loop; CRingBuffer.h::At(i) where i=0 is oldest, Size()-1 is newest.
+    // Draw bars (right-to-left, 1px wide per sample). Pull the ring buffer from
+    // CDataManager for our token category. If the bar area is empty (w < text_w+1)
+    // or the buffer is empty, nothing to draw — just show the value text.
+    if (bar_w > 0)
+    {
+        const CRingBuffer<float, kHistoryCapacity>& buf =
+            CDataManager::Instance().GetGraphHistory(m_category);
+        const size_t n = buf.Size();
+        if (n > 0)
+        {
+            const int bar_height = bar_rect.Height();
+            // Cap iterations to bar_w so we never draw off the left edge.
+            const size_t max_iter = (static_cast<size_t>(bar_w) < n)
+                                    ? static_cast<size_t>(bar_w)
+                                    : n;
+            for (size_t i = 0; i < max_iter; ++i)
+            {
+                float v = buf.At(i);  // 0=oldest, n-1=newest
+                if (v <= 0.0f) continue;  // skip zero-height bars (empty look)
+                int col_x = bar_rect.right - static_cast<int>(i + 1);
+                if (col_x < bar_rect.left) break;
+                int col_h = static_cast<int>(v * bar_height);
+                if (col_h < 1) col_h = 1;  // keep visible dots for tiny values
+                if (col_h > bar_height) col_h = bar_height;
+                int col_y_top = bar_rect.bottom - col_h;
+                pDC->FillSolidRect(CRect(col_x, col_y_top, col_x + 1, bar_rect.bottom), color);
+            }
+        }
+    }
 
     // Value text on the right.
-    // TODO: pick value_text_color based on dark_mode (light gray on dark, dark gray on light).
-    //   Use EI_LABEL_TEXT_COLOR / EI_VALUE_TEXT_COLOR via OnExtenedInfo if you want main-program colors.
     CString value_text = CDataManager::Instance().GetValueText(m_category);
     pDC->SetTextColor(color);
     pDC->SetBkMode(TRANSPARENT);

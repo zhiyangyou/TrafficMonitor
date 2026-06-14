@@ -179,6 +179,7 @@
     <ClInclude Include="RingBuffer.h" />
     <ClInclude Include="SidecarReader.h" />
     <ClInclude Include="StatuslineInstaller.h" />
+    <ClInclude Include="TaskbarItemRegistrar.h" />
     <ClInclude Include="TokenItem.h" />
   </ItemGroup>
   <ItemGroup>
@@ -195,6 +196,7 @@
     <ClCompile Include="RingBuffer.cpp" />
     <ClCompile Include="SidecarReader.cpp" />
     <ClCompile Include="StatuslineInstaller.cpp" />
+    <ClCompile Include="TaskbarItemRegistrar.cpp" />
     <ClCompile Include="TokenItem.cpp" />
   </ItemGroup>
   <ItemGroup>

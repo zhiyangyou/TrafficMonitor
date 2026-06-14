@@ -32,10 +32,12 @@ metadata:
 
 ## 协作约定（**必读**）
 
-1. **修改代码后必跑冒烟测试**。命令与判据见 `references/topics/smoke-test.md`。冒烟测试 = MSBuild 编译 + dumpbin 验证导出 `TMPluginGetInstance` + 验证 machine=x64。任何一步不过都算失败。
-2. **编译报错的速查**：`smoke-test.md §3 失败模式速查` 覆盖了已知的 RC2104 / C2601 / C1083 / C1075 等错误模式。新报错先查表。
-3. **任何架构/接口/数据流变更** → 必须同步更新 `references/overview/` 和 `docs/adr/`。本 skill 是**唯一**的项目记忆，代码改了文档没改 = 失忆。
-4. **TODO 注释是契约**：每个 stub 方法的 `// TODO:` 都引用了对应的 topic 文档（如 `references/topics/delta-algorithm.md`）。填充时按引用读文档，不要猜。
+1. **修改代码后必跑冒烟测试**。命令与判据见 `references/topics/smoke-test.md`。冒烟测试 = 关闭 Monitor 进程 + MSBuild 编译 + dumpbin 验证导出 `TMPluginGetInstance` + 验证 machine=x64 + 启动主程序 + 进程稳定。任何一步不过都算失败。
+2. **冒烟测试前必先关闭 Monitor 进程**（强制前置）。原因：主程序 .exe 和 plugin DLL 在运行时被加载占用文件句柄，跳过这步会导致编译"假成功"（新代码不会在运行实例里生效）。完整命令见 `smoke-test.md §2.8`。
+3. **优先用 SubAgent 并发执行小任务**。插件有 6 类独立代码（UI / Installer / Reader+Json / Acc+DM / Registrar / 集成手册），并行 SubAgent 填充比主会话串行写快 3-5 倍，且避免主窗口上下文被源码细节污染。每个 SubAgent 拿完整 plan + topic 文档引用即可，主会话只做"整合 + 编译 + 冒烟测试 + 文档更新"。
+4. **编译报错的速查**：`smoke-test.md §3 失败模式速查` 覆盖了已知的 RC2104 / C2601 / C1083 / C1075 等错误模式。新报错先查表。
+5. **任何架构/接口/数据流变更** → 必须同步更新 `references/overview/` 和 `docs/adr/`。本 skill 是**唯一**的项目记忆，代码改了文档没改 = 失忆。
+6. **TODO 注释是契约**：每个 stub 方法的 `// TODO:` 都引用了对应的 topic 文档（如 `references/topics/delta-algorithm.md`）。填充时按引用读文档，不要猜。
 
 ## 阅读路径
 

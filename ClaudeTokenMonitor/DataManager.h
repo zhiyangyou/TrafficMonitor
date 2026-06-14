@@ -1,5 +1,7 @@
 #pragma once
 #include "pch.h"
+#include <algorithm>
+#include <deque>
 #include <functional>
 #include <string>
 #include <vector>
@@ -62,6 +64,14 @@ public:
     // Reference: PluginDemo/DataManager.cpp:53-66
     const CString& StringRes(UINT id);
 
+    // Save ITrafficMonitor* + config_dir for the throttled ini re-patcher
+    // in Tick(). See TaskbarItemRegistrar.h / plan section 5.
+    void SetRegistrarContext(ITrafficMonitor* pApp, const std::wstring& config_dir)
+    {
+        m_app_for_registrar = pApp;
+        m_cached_config_dir = config_dir;
+    }
+
     // 1Hz main loop. Called by CClaudeTokenMonitorPlugin::DataRequired().
     // See plan §4.2 for the full Tick() pseudo-code.
     // TODO: implement per plan §4.2 / 03-data-flow.md §跳 4-7
@@ -74,11 +84,14 @@ public:
 
     // Getter for ring-buffer normalized values + value text + color per category.
     // Used by CTokenItem::DrawItem (called from UI thread).
-    // TODO: implement read accessors after Tick() pushes normalized samples.
     float GetGraphValue(TokenCategory cat) const;
     const CString& GetValueText(TokenCategory cat) const;
     const CString& GetValueSampleText(TokenCategory cat) const;
     COLORREF GetItemColor(TokenCategory cat) const;
+
+    // Read-only accessor for the ring buffer of a given token category.
+    // CTokenItem::DrawItem uses this to walk the history and draw bars.
+    const CRingBuffer<float, kHistoryCapacity>& GetGraphHistory(TokenCategory cat) const;
 
     // Settings accessor (used by COptionsDlg).
     SettingData& Settings() { return m_setting_data; }
@@ -119,9 +132,36 @@ private:
     CRingBuffer<float, kHistoryCapacity> m_cache_read_history;
     CRingBuffer<float, kHistoryCapacity> m_output_history;
 
+    // Throttled ini re-patcher context (set by CClaudeTokenMonitorPlugin::OnInitialize).
+    // DataManager::Tick() calls CTaskbarItemRegistrar::EnsureRegisteredThrottled
+    // every 5s to recover from main program's SaveConfig() clobbering the ini.
+    ITrafficMonitor* m_app_for_registrar{};
+    std::wstring m_cached_config_dir;
+
     // Last 1s window deltas (sliding).
     struct { long long input{}, cache_creation{}, cache_read{}, output{}; } m_window{};
     ULONGLONG m_last_tick_ms{};
+
+    // Per-tick deltas with timestamps. Used to slide the 1s window: pop entries
+    // older than (now_ms - 1000). deque<...> gives O(1) pop_front.
+    struct RecentDelta
+    {
+        ULONGLONG ts_ms{};
+        Delta d{};
+    };
+    std::deque<RecentDelta> m_recent_deltas;
+
+    // Sliding 60s maximum per token category, used as the normalization baseline.
+    // floor of 100 tok/s prevents divide-by-zero at startup.
+    struct SlidingMax
+    {
+        unsigned long long value{ 100 };
+        ULONGLONG ts_ms{ 0 };
+    };
+    SlidingMax m_max_in;
+    SlidingMax m_max_cc;
+    SlidingMax m_max_cr;
+    SlidingMax m_max_out;
 
     // Value text cache — formatted by Tick(), read by CTokenItem::GetItemValueText.
     CString m_input_value_text;

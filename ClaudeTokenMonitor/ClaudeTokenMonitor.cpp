@@ -6,6 +6,7 @@
 #include "DataManager.h"
 #include "OptionsDlg.h"
 #include "StatuslineInstaller.h"
+#include "TaskbarItemRegistrar.h"
 
 CClaudeTokenMonitorPlugin CClaudeTokenMonitorPlugin::m_instance;
 
@@ -110,6 +111,16 @@ void CClaudeTokenMonitorPlugin::OnInitialize(ITrafficMonitor* pApp)
 {
     // Reference: PluginDemo/PluginDemo.cpp:104-110
     m_app = pApp;
+
+    // Auto-register the 4 item IDs into main program's config.ini so they
+    // appear on the taskbar after the next restart. Idempotent — no-op once
+    // the IDs are already there. See TaskbarItemRegistrar.h / plan §5.
+    CTaskbarItemRegistrar::EnsureRegistered(pApp->GetPluginConfigDir(), pApp);
+
+    // Hand the ITrafficMonitor* and config_dir to DataManager so Tick() can
+    // re-patch the ini every 5s (main program SaveConfig() clobbers it).
+    CDataManager::Instance().SetRegistrarContext(pApp, pApp->GetPluginConfigDir());
+    CTaskbarItemRegistrar::ResetThrottle();
 
     // FreeLibrary+LoadLibrary reload protection: clear stale delta state.
     CDataManager::Instance().ResetRuntimeState();
