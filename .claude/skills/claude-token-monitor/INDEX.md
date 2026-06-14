@@ -17,6 +17,7 @@ claude-token-monitor/
 │   │   └── 04-glossary.md                  补充术语解释
 │   ├── topics/
 │   │   ├── data-source.md                  数据源选型 (statusline sidecar vs JSONL)
+│   │   ├── smoke-test.md                  冒烟测试流程 (MSBuild + dumpbin 验证导出)
 │   │   ├── plugin-contract.md              ITMPlugin / IPluginItem 实现要点
 │   │   ├── custom-draw.md                  IsCustomDraw=true 自绘滚动柱形图细节
 │   │   ├── wrapper-installer.md            wrapper 装 / 卸 / 备份 / 还原
@@ -37,16 +38,18 @@ claude-token-monitor/
 ## 阅读建议
 
 1. **新加入者** → `SKILL.md` → `references/overview/00-status.md` → `01-context.md` → `02-architecture.md` → `03-data-flow.md`
-2. **改某个机制** → 直接看 `references/topics/<对应主题>.md`
-3. **回顾决策理由** → `docs/adr/` 下按编号读
-4. **术语不清楚** → `references/overview/01-context.md`（主表）或 `04-glossary.md`（补充）
+2. **改代码前** → `references/topics/smoke-test.md`（必读：编译命令 + 通过判据）
+3. **改某个机制** → 直接看 `references/topics/<对应主题>.md`
+4. **回顾决策理由** → `docs/adr/` 下按编号读
+5. **术语不清楚** → `references/overview/01-context.md`（主表）或 `04-glossary.md`（补充）
 
 ## 文档维护规则
 
 - **任何代码变更** → 检查 `references/` 下对应主题文档是否需要同步
 - **任何架构决策** → 必须新建或更新 `docs/adr/`
 - **任何术语** → 如果还没出现在 `01-context.md`，就在 `01-context.md` 补上
-- **任何状态变化**（编译跑通、测试通过、部署）→ 更新 `00-status.md`
+- **任何状态变化**（编译跑通、测试通过、部署）→ 更新 `00-status.md` + 必要时追加到 `smoke-test.md §6 历史执行记录`
+- **任何代码变更后** → 跑 `references/topics/smoke-test.md` 的冒烟测试（MSBuild + dumpbin）
 - **不要写流水账**（如"今天完成了 XX"），只写"现在已经是这样"
 
 ## 关联 skill

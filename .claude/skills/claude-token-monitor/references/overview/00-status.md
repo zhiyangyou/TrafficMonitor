@@ -14,26 +14,29 @@
 
 | 路径 | 状态 |
 | --- | --- |
-| `G:\_GitSpace\_GitHub\TrafficMonitor.git\ClaudeTokenMonitor\` | **不存在**——计划文件中列出的 14 个文件（vcxproj、framework.h、pch.h、ClaudeTokenMonitor.cpp/h、DataManager.h/cpp、Accumulator.h/cpp、RingBuffer.h/cpp、SidecarReader.h/cpp、StatuslineInstaller.h/cpp、TokenItem.h/cpp、OptionsDlg.h/cpp、JsonHelpers.h、.rc/.filters）一个都没创建 |
-| `ClaudeTokenMonitor/include/nlohmann/json.hpp` | 不存在（计划列入的 vendored 依赖） |
-| 任何 wrapper 脚本（`statusline-wrapper.ps1`） | 不存在 |
+| `G:\_GitSpace\_GitHub\TrafficMonitor.git\ClaudeTokenMonitor\` | **已创建** — 28 个文件（vcxproj / .filters / framework.h / pch.h / pch.cpp / resource.h / 8 个头 / 8 个实现 / .rc + 占位 json.hpp） |
+| `ClaudeTokenMonitor/include/nlohmann/json.hpp` | **占位 stub**（用户需替换为真 nlohmann/json.hpp v3.11.3） |
+| Wrapper 脚本（`statusline-wrapper.ps1`） | **嵌入字符串** 已在 `StatuslineInstaller.cpp:14-45` 完成；CStatuslineInstaller::Install() 是 TODO stub，未真正写出文件 |
 
 ## 1.3 解决方案集成
 
 | 集成点 | 状态 |
 | --- | --- |
-| `TrafficMonitor.sln` 包含 `ClaudeTokenMonitor.vcxproj` | **未做**（sln 文件当前只含 3 个项目：TrafficMonitor / OpenHardwareMonitorApi / PluginDemo） |
-| `TrafficMonitor_Lite.sln` 包含 `ClaudeTokenMonitor.vcxproj` | **未做** |
-| vcxproj.filters 文件 | **未创建** |
-| 项目 GUID 已注册 | 否 |
+| `TrafficMonitor.sln` 包含 `ClaudeTokenMonitor.vcxproj` | **已集成**（GUID `{6A8A4F7E-1D2C-4B3D-9E5F-7A8B9C0D1E2F}`） |
+| `TrafficMonitor_Lite.scx` 包含 `ClaudeTokenMonitor.vcxproj` | **未做** |
+| vcxproj.filters 文件 | **已创建** |
+| 项目 GUID 已注册 | **是** |
 
 ## 1.4 编译产出
 
 | 产物 | 期望路径 | 存在 |
 | --- | --- | --- |
-| `Bin\Release\x64\plugins\ClaudeTokenMonitor.dll` | 由 vcxproj 的 `OutDir=plugins\` 子目录自动产出 | 否（未编译） |
+| `ClaudeTokenMonitor/Bin/x64/Release/plugins/ClaudeTokenMonitor.dll` | 单独构建 vcxproj 时的 OutDir | **是**（40KB, 2026-06-14 首次冒烟测试通过） |
+| `Bin\Release\x64\plugins\ClaudeTokenMonitor.dll` | sln 整体构建时才会产出 | 否（未跑 sln 整体构建） |
 | `Bin\Debug\x64\plugins\ClaudeTokenMonitor.dll` | 同上 | 否 |
 | `Bin\Release\Win32\plugins\ClaudeTokenMonitor.dll` | 同上 | 否 |
+
+> 冒烟测试命令与判据见 `references/topics/smoke-test.md`。
 
 ## 1.5 端到端测试
 

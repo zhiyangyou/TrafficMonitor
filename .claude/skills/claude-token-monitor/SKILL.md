@@ -23,19 +23,28 @@ metadata:
 
 | 项 | 状态 |
 |---|---|
-| 计划文件 | `C:\Users\YOU\.claude\plans\anysearch-cc-switch-token-stats-traffic-mossy-flask.md`（已审批，待实施） |
-| 源码目录 | `TrafficMonitor.git/ClaudeTokenMonitor/`（**尚未创建**，本 skill 建好后会创建骨架） |
-| 编译产出 | 未开始 |
-| 端到端测试 | 未开始 |
+| 计划文件 | `C:\Users\YOU\.claude\plans\anysearch-cc-switch-token-stats-traffic-mossy-flask.md`（已审批） |
+| 源码目录 | `TrafficMonitor.git/ClaudeTokenMonitor/`（**已创建**，28 文件） |
+| sln 集成 | `TrafficMonitor.sln` 已加项目（GUID `{6A8A4F7E-1D2C-4B3D-9E5F-7A8B9C0D1E2F}`） |
+| 编译产出 | `ClaudeTokenMonitor/Bin/x64/Release/plugins/ClaudeTokenMonitor.dll`（40KB，2026-06-14 首次冒烟测试通过） |
+| 冒烟测试流程 | 已沉淀到 `references/topics/smoke-test.md` |
+| 端到端测试 | 未开始（需 GUI，无法在沙箱跑） |
+
+## 协作约定（**必读**）
+
+1. **修改代码后必跑冒烟测试**。命令与判据见 `references/topics/smoke-test.md`。冒烟测试 = MSBuild 编译 + dumpbin 验证导出 `TMPluginGetInstance` + 验证 machine=x64。任何一步不过都算失败。
+2. **编译报错的速查**：`smoke-test.md §3 失败模式速查` 覆盖了已知的 RC2104 / C2601 / C1083 / C1075 等错误模式。新报错先查表。
+3. **任何架构/接口/数据流变更** → 必须同步更新 `references/overview/` 和 `docs/adr/`。本 skill 是**唯一**的项目记忆，代码改了文档没改 = 失忆。
+4. **TODO 注释是契约**：每个 stub 方法的 `// TODO:` 都引用了对应的 topic 文档（如 `references/topics/delta-algorithm.md`）。填充时按引用读文档，不要猜。
 
 ## 阅读路径
 
 1. **首次进入** → `references/overview/00-status.md` 看项目当前在哪一步
-2. **理解领域概念** → `references/overview/01-context.md`（术语表，统一口径）
-3. **理解整体架构** → `references/overview/02-architecture.md` + `03-data-flow.md`
-4. **查找某个机制** → `references/topics/` 下对应主题
-5. **理解某个决策** → `docs/adr/` 下对应 ADR
-6. **理解为什么这样设计** → `references/topics/data-source.md`（数据源选型）和 `references/topics/plugin-contract.md`（接口契约）
+2. **修改代码前** → `references/topics/smoke-test.md` 记住编译命令和判据
+3. **理解领域概念** → `references/overview/01-context.md`（术语表，统一口径）
+4. **理解整体架构** → `references/overview/02-architecture.md` + `03-data-flow.md`
+5. **查找某个机制** → `references/topics/` 下对应主题
+6. **理解为什么这样设计** → `docs/adr/` 下对应 ADR（4 份）
 
 ## 目录结构
 
