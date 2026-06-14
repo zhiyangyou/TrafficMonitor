@@ -1,0 +1,219 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(简体，中国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_OPTIONS_DIALOG DIALOGEX 0, 0, 320, 220
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "ClaudeTokenMonitor 设置"
+FONT 9, "Microsoft YaHei UI", 400, 0, 0x0
+BEGIN
+    LTEXT           "状态：", IDC_STATIC, 7, 7, 40, 10
+    LTEXT           "(检测中...)", IDC_STATIC_STATUS, 47, 7, 260, 10
+    PUSHBUTTON      "安装 wrapper", IDC_BTN_INSTALL, 7, 22, 80, 16
+    PUSHBUTTON      "卸载 wrapper", IDC_BTN_UNINSTALL, 92, 22, 80, 16
+    GROUPBOX        "汇总模式", IDC_STATIC, 7, 44, 306, 60
+    LTEXT           "模式：", IDC_STATIC, 15, 60, 32, 10
+    COMBOBOX        IDC_CBO_AGGREGATE_MODE, 50, 58, 100, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "单 session：", IDC_STATIC, 15, 80, 50, 10
+    COMBOBOX        IDC_CBO_SINGLE_SESSION, 70, 78, 120, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "刷新 sessions", IDC_BTN_REFRESH_SESSIONS, 200, 78, 100, 14
+    LTEXT           "忽略：", IDC_STATIC, 15, 95, 30, 10
+    LISTBOX         IDC_LST_IGNORED, 50, 95, 250, 8, LBS_MULTIPLESEL | WS_BORDER
+    GROUPBOX        "颜色", IDC_STATIC, 7, 110, 306, 50
+    LTEXT           "Token In：", IDC_STATIC, 15, 124, 50, 10
+    CONTROL         "",IDC_CLR_INPUT,"MFCColorButton",WS_TABSTOP,70,122,30,14
+    LTEXT           "Cache Write：", IDC_STATIC, 115, 124, 70, 10
+    CONTROL         "",IDC_CLR_CACHE_WRITE,"MFCColorButton",WS_TABSTOP,190,122,30,14
+    LTEXT           "Cache Read：", IDC_STATIC, 15, 142, 60, 10
+    CONTROL         "",IDC_CLR_CACHE_READ,"MFCColorButton",WS_TABSTOP,80,140,30,14
+    LTEXT           "Token Out：", IDC_STATIC, 130, 142, 60, 10
+    CONTROL         "",IDC_CLR_OUTPUT,"MFCColorButton",WS_TABSTOP,195,140,30,14    GROUPBOX        "其他", IDC_STATIC, 7, 166, 306, 30
+    LTEXT           "刷新频率(ms)：", IDC_STATIC, 15, 180, 70, 10
+    EDITTEXT        IDC_SPIN_REFRESH, 90, 178, 50, 14, ES_AUTOHSCROLL | ES_NUMBER
+    DEFPUSHBUTTON   "确定", IDOK, 200, 200, 50, 14
+    PUSHBUTTON      "取消", IDCANCEL, 260, 200, 50, 14
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_OPTIONS_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 213
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_OPTIONS_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "CompanyName", "TrafficMonitor Plugin"
+            VALUE "FileDescription", "Claude Code Token Monitor for TrafficMonitor"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "ClaudeTokenMonitor.dll"
+            VALUE "LegalCopyright", "Copyright (C) 2026"
+            VALUE "OriginalFilename", "ClaudeTokenMonitor.dll"
+            VALUE "ProductName", "ClaudeTokenMonitor"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_PLUGIN_NAME         "ClaudeTokenMonitor"
+    IDS_PLUGIN_DESCRIPTION  "监听 Claude Code Desktop 的 token 消耗并在任务栏显示滚动柱形图。"
+    IDS_TOKEN_IN            "Token In"
+    IDS_CACHE_WRITE         "Cache Write"
+    IDS_CACHE_READ          "Cache Read"
+    IDS_TOKEN_OUT           "Token Out"
+END
+
+#endif    // 中文(简体，中国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 英语(美国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_OPTIONS_DIALOG DIALOGEX 0, 0, 320, 220
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "ClaudeTokenMonitor Settings"
+FONT 9, "Segoe UI", 400, 0, 0x0
+BEGIN
+    LTEXT           "Status:", IDC_STATIC, 7, 7, 40, 10
+    LTEXT           "(detecting...)", IDC_STATIC_STATUS, 47, 7, 260, 10
+    PUSHBUTTON      "Install wrapper", IDC_BTN_INSTALL, 7, 22, 80, 16
+    PUSHBUTTON      "Uninstall wrapper", IDC_BTN_UNINSTALL, 92, 22, 80, 16
+    GROUPBOX        "Aggregation", IDC_STATIC, 7, 44, 306, 60
+    LTEXT           "Mode:", IDC_STATIC, 15, 60, 32, 10
+    COMBOBOX        IDC_CBO_AGGREGATE_MODE, 50, 58, 100, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Single session:", IDC_STATIC, 15, 80, 60, 10
+    COMBOBOX        IDC_CBO_SINGLE_SESSION, 80, 78, 120, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Refresh sessions", IDC_BTN_REFRESH_SESSIONS, 200, 78, 100, 14
+    LTEXT           "Ignore:", IDC_STATIC, 15, 95, 30, 10
+    LISTBOX         IDC_LST_IGNORED, 50, 95, 250, 8, LBS_MULTIPLESEL | WS_BORDER
+    GROUPBOX        "Colors", IDC_STATIC, 7, 110, 306, 50
+    LTEXT           "Token In:", IDC_STATIC, 15, 124, 50, 10
+    CONTROL         "",IDC_CLR_INPUT,"MFCColorButton",WS_TABSTOP,70,122,30,14
+    LTEXT           "Cache Write:", IDC_STATIC, 115, 124, 70, 10
+    CONTROL         "",IDC_CLR_CACHE_WRITE,"MFCColorButton",WS_TABSTOP,190,122,30,14
+    LTEXT           "Cache Read:", IDC_STATIC, 15, 142, 60, 10
+    CONTROL         "",IDC_CLR_CACHE_READ,"MFCColorButton",WS_TABSTOP,80,140,30,14
+    LTEXT           "Token Out:", IDC_STATIC, 130, 142, 60, 10
+    CONTROL         "",IDC_CLR_OUTPUT,"MFCColorButton",WS_TABSTOP,195,140,30,14
+    GROUPBOX        "Other", IDC_STATIC, 7, 166, 306, 30
+    LTEXT           "Refresh (ms):", IDC_STATIC, 15, 180, 70, 10
+    EDITTEXT        IDC_SPIN_REFRESH, 90, 178, 50, 14, ES_AUTOHSCROLL | ES_NUMBER
+    DEFPUSHBUTTON   "OK", IDOK, 200, 200, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 260, 200, 50, 14
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_PLUGIN_NAME         "ClaudeTokenMonitor"
+    IDS_PLUGIN_DESCRIPTION  "Monitors Claude Code Desktop token usage and renders scrolling bar graphs on the taskbar."
+    IDS_TOKEN_IN            "Token In"
+    IDS_CACHE_WRITE         "Cache Write"
+    IDS_CACHE_READ          "Cache Read"
+    IDS_TOKEN_OUT           "Token Out"
+END
+
+#endif    // 英语(美国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
