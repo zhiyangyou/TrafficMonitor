@@ -210,184 +210,21 @@ std::wstring CStatuslineInstaller::GetClaudeSettingsPath()
 
 CStatuslineInstaller::InstallState CStatuslineInstaller::CheckInstalled()
 {
-    std::wstring settings_path = GetClaudeSettingsPath();
-    if (settings_path.empty())
-    {
-        return InstallState::ClaudeCodeMissing;
-    }
-
-    // Check file existence via attributes (cheaper than ifstream).
-    DWORD attrs = GetFileAttributesW(settings_path.c_str());
-    if (attrs == INVALID_FILE_ATTRIBUTES)
-    {
-        return InstallState::ClaudeCodeMissing;
-    }
-
-    // Coarse detection: substring search for our wrapper filename in raw file content.
-    // Avoids nlohmann/json dependency for the check path (settings.json may be malformed
-    // or have null current_usage; we only need to know whether we installed).
-    std::string content;
-    if (!ReadFileToString(settings_path, content))
-    {
-        return InstallState::NotInstalled;
-    }
-
-    if (content.find("statusline-wrapper.ps1") != std::string::npos)
-    {
-        return InstallState::Installed;
-    }
+    // As of ADR 0005 (2026-06-14), the statusline-wrapper data source is
+    // abandoned. The plugin now reads Claude Code project JSONL files
+    // directly (see CJsonlDirectoryWatcher). This function returns
+    // NotInstalled so that COptionsDlg renders the wrapper controls in
+    // their default disabled state. The wrapper paths below are still
+    // defined (for legacy / debugging) but no longer drive any logic.
     return InstallState::NotInstalled;
 }
 
 bool CStatuslineInstaller::Install()
 {
-    // 1. Precondition: Claude Code must be present.
-    std::wstring settings_path = GetClaudeSettingsPath();
-    if (settings_path.empty())
-    {
-        return false;
-    }
-    DWORD attrs = GetFileAttributesW(settings_path.c_str());
-    if (attrs == INVALID_FILE_ATTRIBUTES)
-    {
-        return false;
-    }
-
-    // 2. Ensure %APPDATA%\ClaudeTokenMonitor exists.
-    std::wstring appdata = GetAppDataDir();
-    if (appdata.empty())
-    {
-        return false;
-    }
-
-    // 3. Read current settings.json.
-    std::string raw;
-    if (!ReadFileToString(settings_path, raw))
-    {
-        return false;
-    }
-    StripUtf8Bom(raw);
-
-    // 4. Backup current settings.json (overwrite prior .bak). Use a stable
-    // timestamp so the filename is deterministic — multiple installs keep only
-    // the latest backup, per plan section 4.4 step 2.
-    {
-        std::wstring backup = GetAppDataDir() + L"\\settings.json.bak";
-        CopyFileBinary(settings_path, backup);
-    }
-
-    // 5. Parse JSON and extract the previous statusLine.command (if any).
-    std::string previous_cmd;
-    nlohmann::json j;
-    try
-    {
-        j = nlohmann::json::parse(raw);
-    }
-    catch (const std::exception&)
-    {
-        // Malformed settings.json — start from a fresh object.
-        j = nlohmann::json::object();
-    }
-
-    if (j.contains("statusLine") && j["statusLine"].is_object())
-    {
-        const auto& sl = j["statusLine"];
-        if (sl.contains("command") && sl["command"].is_string())
-        {
-            previous_cmd = sl["command"].get<std::string>();
-        }
-    }
-
-    // 6. Persist previous command (only if non-empty).
-    {
-        // If there was a previous command AND it was our own wrapper (re-install
-        // case), prefer the saved originalCommand to chain back to the real original.
-        std::string orig_from_settings;
-        if (j.contains("statusLine") && j["statusLine"].is_object() &&
-            j["statusLine"].contains("originalCommand") && j["statusLine"]["originalCommand"].is_string())
-        {
-            orig_from_settings = j["statusLine"]["originalCommand"].get<std::string>();
-        }
-        if (!orig_from_settings.empty())
-        {
-            previous_cmd = orig_from_settings;
-        }
-
-        if (!previous_cmd.empty())
-        {
-            std::ofstream prev(GetPreviousStatuslinePath(), std::ios::binary | std::ios::trunc);
-            if (prev)
-            {
-                prev << previous_cmd;
-                prev.close();
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            // No prior command — make sure the leftover file is not present.
-            DeleteFileW(GetPreviousStatuslinePath().c_str());
-        }
-    }
-
-    // 7. Build the new statusLine object: command = our wrapper, originalCommand = previous.
-    {
-        nlohmann::json status_line = nlohmann::json::object();
-        std::wstring wrapper_path = GetWrapperPath();
-        std::wstring command = L"powershell -ExecutionPolicy Bypass -File \"" + wrapper_path + L"\"";
-        status_line["command"] = WideToUtf8(command);
-        if (!previous_cmd.empty())
-        {
-            status_line["originalCommand"] = previous_cmd;
-        }
-        j["statusLine"] = status_line;
-    }
-
-    // 8. Atomic write back to settings.json.
-    std::string serialized = j.dump(4);
-    serialized.push_back('\n');
-    if (!AtomicWriteUtf8(settings_path, serialized))
-    {
-        return false;
-    }
-
-    // 9. Write wrapper script to %APPDATA%\ClaudeTokenMonitor\statusline-wrapper.ps1.
-    {
-        std::wstring wrapper_path = GetWrapperPath();
-        std::ofstream wf(wrapper_path, std::ios::binary | std::ios::trunc);
-        if (!wf)
-        {
-            return false;
-        }
-        // UTF-8 BOM.
-        wf.write("\xEF\xBB\xBF", 3);
-        // Convert wide wrapper content to UTF-8 and write.
-        std::wstring wrapper_wide(kWrapperScriptContent);
-        std::string wrapper_utf8 = WideToUtf8(wrapper_wide);
-        wf.write(wrapper_utf8.data(), static_cast<std::streamsize>(wrapper_utf8.size()));
-        wf.flush();
-        if (!wf.good())
-        {
-            wf.close();
-            return false;
-        }
-    }
-
-    // 10. Create empty sidecar.jsonl if missing.
-    {
-        std::wstring sidecar = GetSidecarPath();
-        DWORD sa = GetFileAttributesW(sidecar.c_str());
-        if (sa == INVALID_FILE_ATTRIBUTES)
-        {
-            std::ofstream sf(sidecar, std::ios::binary | std::ios::app);
-            sf.close();
-        }
-    }
-
-    return true;
+    // No-op: statusline wrapper no longer drives the data source. The
+    // plugin reads JSONL directly. We return false so the dialog's error
+    // path can show a clear "wrapper install no longer needed" message.
+    return false;
 }
 
 bool CStatuslineInstaller::Uninstall()

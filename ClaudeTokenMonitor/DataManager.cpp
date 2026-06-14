@@ -232,7 +232,7 @@ void CDataManager::Tick()
 void CDataManager::ResetRuntimeState()
 {
     m_acc.Reset();
-    m_reader.ResetOffset();
+    m_reader.Reset();
     m_window = {};
     m_last_tick_ms = 0;
     m_recent_deltas.clear();

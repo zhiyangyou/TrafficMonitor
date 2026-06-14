@@ -126,7 +126,7 @@ private:
 
     // Runtime state (set by Tick()).
     CPerSessionAccumulator m_acc;
-    CSidecarReader m_reader;
+    CJsonlDirectoryWatcher m_reader;
     CRingBuffer<float, kHistoryCapacity> m_input_history;
     CRingBuffer<float, kHistoryCapacity> m_cache_write_history;
     CRingBuffer<float, kHistoryCapacity> m_cache_read_history;
