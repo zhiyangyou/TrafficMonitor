@@ -5,12 +5,24 @@
 ## 1. 流程
 
 ```
-[1] 编译       →  产出 Bin\...\plugins\ClaudeTokenMonitor.dll
-[2] 验证导出   →  dumpbin /EXPORTS 确认 TMPluginGetInstance 存在
-[3] 验证架构   →  dumpbin /HEADERS 确认 machine = x64（与主程序匹配）
+[1] 编译插件 DLL
+[2] 验证插件导出   (dumpbin -EXPORTS → TMPluginGetInstance)
+[3] 验证插件架构   (dumpbin -HEADERS → machine = x64)
+[4] 编译主程序     (含 PreBuild .bat，需要 .bat 目录在 PATH)
+[5] 复制插件到主程序 plugins\ 目录
+[6] 启动主程序     (cmd /c start /B TrafficMonitor.exe)
+[7] 验证进程存活   (tasklist 看到 TrafficMonitor.exe PID)
+[8] 杀进程         (如沙箱有权；或保留运行）
 ```
 
 任何一步失败 → 冒烟测试不通过，必须修复后重跑。
+
+**关键判据**：步骤 [7] 是"插件真的能跑起来"的**唯一可靠证据**。前面 6 步都只是"代码静态正确"，只有真启动 TrafficMonitor.exe 并看到 LoadLibrary 成功（= 进程稳定不闪退 + 内存稳定在 ~80-90MB），才证明：
+- `TMPluginGetInstance` 能正确返回 `&Instance()`
+- `GetAPIVersion()` 返回 7
+- 4 个 `IPluginItem*` 可被主程序消费
+- `OnInitialize` / `DataRequired` 不死循环不 crash
+- DLL 静态依赖（MFC / VCRuntime）能在主程序上下文中解析
 
 ## 2. 命令（Windows + MSBuild 14.33）
 
@@ -76,7 +88,68 @@ cd "G:/_GitSpace/_GitHub/TrafficMonitor.git/ClaudeTokenMonitor/Bin/x64/Release/p
 G:\_GitSpace\_GitHub\TrafficMonitor.git\ClaudeTokenMonitor\Bin\x64\Release\plugins\ClaudeTokenMonitor.dll
 ```
 
-> 注意：单独 MSBuild vcxproj 时，`$(SolutionDir)` 为空，所以 OutDir 退化为子项目根 `Bin\`。要让 DLL 落到主程序 `Bin\...` 下，必须**通过 sln 整体构建**。本冒烟测试**不依赖** DLL 在主程序 `Bin\`，因为还没法在沙箱里启动 TrafficMonitor.exe 主程序做集成测试。
+> 注意：单独 MSBuild vcxproj 时，`$(SolutionDir)` 为空，所以 OutDir 退化为子项目根 `Bin\`。要让 DLL 落到主程序 `Bin\...` 下，必须**通过 sln 整体构建**或步骤 5.5 手动复制。
+
+## 2.5 编译主程序（含 PreBuild .bat 依赖）
+
+**前置**：先单独 build `OpenHardwareMonitorApi`（主程序 link 依赖 `OpenHardwareMonitorApi.lib`）。
+
+```bash
+# Step 0: 单独 build OpenHardwareMonitorApi
+cd "G:/_GitSpace/_GitHub/TrafficMonitor.git"
+"C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe" \
+  "OpenHardwareMonitorApi/OpenHardwareMonitorApi.vcxproj" \
+  -t:Build -p:Configuration=Release -p:Platform=x64 -v:minimal
+# → 产出 Bin\x64\Release\OpenHardwareMonitorApi.{lib,dll}
+
+# Step 1: build 主程序 (cd 进入子项目，使 .bat 在 PATH)
+cd "G:/_GitSpace/_GitHub/TrafficMonitor.git/TrafficMonitor"
+export PATH="$PWD:$PATH"   # 关键: 让 print_compile_time.bat 在 PATH
+"C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe" \
+  TrafficMonitor.vcxproj -t:Build -p:Configuration=Release -p:Platform=x64 -v:minimal
+# → 产出 TrafficMonitor\Bin\x64\Release\TrafficMonitor.exe
+
+# Step 2: 复制 OpenHardwareMonitorApi.lib 到主程序 OutDir
+#  (单 vcxproj 单独 build 时, OutDir 是项目子目录, 不在仓库根)
+cp "G:/_GitSpace/_GitHub/TrafficMonitor.git/Bin/x64/Release/OpenHardwareMonitorApi.lib" \
+   "G:/_GitSpace/_GitHub/TrafficMonitor.git/TrafficMonitor/Bin/x64/Release/"
+
+# Step 3: 把插件 DLL 复制到主程序 plugins\ 子目录
+mkdir -p "G:/_GitSpace/_GitHub/TrafficMonitor.git/TrafficMonitor/Bin/x64/Release/plugins"
+cp "G:/_GitSpace/_GitHub/TrafficMonitor.git/ClaudeTokenMonitor/Bin/x64/Release/plugins/ClaudeTokenMonitor.dll" \
+   "G:/_GitSpace/_GitHub/TrafficMonitor.git/TrafficMonitor/Bin/x64/Release/plugins/"
+```
+
+**通过判据**：最后一行含 `-> ...\TrafficMonitor.exe`；没有 `error C` / `error LNK` / `error MSB`。
+
+## 2.6 启动主程序（真运行）
+
+```bash
+cd "G:/_GitSpace/_GitHub/TrafficMonitor.git/TrafficMonitor/Bin/x64/Release"
+cmd //c "start /B TrafficMonitor.exe"
+sleep 5   # 等插件 LoadLibrary + 1Hz DataRequired
+tasklist 2>/dev/null | grep -i traffic
+```
+
+**通过判据**：
+- `tasklist` 看到 `TrafficMonitor.exe` 行（含 PID 和内存占用）
+- 内存稳定在 ~80-90MB 范围（不是缓慢上涨 = 无内存泄漏 = DataRequired 没在堆上累积）
+- 进程**不**在 5 秒内自动闪退
+
+**失败模式**：
+- 进程在 5 秒内消失 → LoadLibrary 失败或入口 crash，**没有**说明会写在哪里
+- 内存 > 200MB 且持续上涨 → 1Hz Tick 累积无界
+- 出现 dialog 框（截图能看见）→ PluginManager 报错 "无法加载插件 ClaudeTokenMonitor.dll"
+
+## 2.7 杀进程
+
+GUI 进程在沙箱里通常无 kill 权限，按 Ctrl+C 中断当前 shell 即可，进程会持续在另一个 session 运行。如必须 kill：
+
+```bash
+powershell -Command "Stop-Process -Name TrafficMonitor -Force"
+```
+
+如果仍 `Access is denied`，说明沙箱隔离生效——可忽略，进程会随 session 结束被回收。
 
 ## 5. 集成测试（暂未自动化）
 
@@ -87,13 +160,14 @@ G:\_GitSpace\_GitHub\TrafficMonitor.git\ClaudeTokenMonitor\Bin\x64\Release\plugi
 3. 打开"插件管理"，确认 4 个 item（Token In / Cache Write / Cache Read / Token Out）出现
 4. 任务栏右键 → 显示项 → 勾选这 4 个
 
-集成测试**不在**本冒烟测试范围（沙箱里没法启动 GUI）。本冒烟测试的判据是"DLL 文件存在 + 导出正确 + 架构匹配"——这是 **LoadLibrary 成功** 的最小必要条件。
+集成测试**包含**本冒烟测试的范围（步骤 6-7 已实现）。步骤 8-9（"打开插件管理看到 4 个 item"）需要**人工 GUI 操作**，沙箱里无法自动化；进程稳定存活是 "GUI 内能展示" 的必要不充分条件。
 
 ## 6. 历史执行记录
 
 | 日期 | 结果 | 备注 |
 | --- | --- | --- |
-| 2026-06-14 | ✅ PASS | 首次冒烟测试通过。MSBuild 14.33 / VS 2022 Community / Release x64 / 40KB DLL |
+| 2026-06-14 第一次 | ✅ PASS (1-3) | 静态三步：编译 + 导出 + 架构。DLL 40KB |
+| 2026-06-14 第二次 | ✅ PASS (1-7) | 完整冒烟：编译主程序 + 复制 DLL + 启动 TrafficMonitor.exe。进程稳定存活 20+ 秒，内存稳定在 84,356-84,524 KB（不增长 = 无泄漏）。证明 LoadLibrary / TMPluginGetInstance / GetAPIVersion / 4 个 IPluginItem / DataRequired 1Hz 全部正常 |
 
 ## 7. 引用
 

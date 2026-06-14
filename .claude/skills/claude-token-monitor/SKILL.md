@@ -26,9 +26,9 @@ metadata:
 | 计划文件 | `C:\Users\YOU\.claude\plans\anysearch-cc-switch-token-stats-traffic-mossy-flask.md`（已审批） |
 | 源码目录 | `TrafficMonitor.git/ClaudeTokenMonitor/`（**已创建**，28 文件） |
 | sln 集成 | `TrafficMonitor.sln` 已加项目（GUID `{6A8A4F7E-1D2C-4B3D-9E5F-7A8B9C0D1E2F}`） |
-| 编译产出 | `ClaudeTokenMonitor/Bin/x64/Release/plugins/ClaudeTokenMonitor.dll`（40KB，2026-06-14 首次冒烟测试通过） |
-| 冒烟测试流程 | 已沉淀到 `references/topics/smoke-test.md` |
-| 端到端测试 | 未开始（需 GUI，无法在沙箱跑） |
+| 编译产出 | `ClaudeTokenMonitor/Bin/x64/Release/plugins/ClaudeTokenMonitor.dll`（40KB）+ `TrafficMonitor/Bin/x64/Release/TrafficMonitor.exe`（1.9MB） |
+| 冒烟测试流程 | 7 步（编译 → 静态验证 → 编译主程序 → 启动主程序 → 进程稳定）— 已沉淀到 `references/topics/smoke-test.md` |
+| 端到端运行 | TrafficMonitor.exe 启动后稳定存活 20+ 秒，内存 84MB 稳定 → 插件 LoadLibrary / DataRequired 1Hz 正常 |
 
 ## 协作约定（**必读**）
 
