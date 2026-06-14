@@ -1,7 +1,6 @@
 #pragma once
 #include "pch.h"
 #include "DataManager.h"
-#include "afxdialogex.h"
 
 // COptionsDlg — MFC options dialog for ClaudeTokenMonitor.
 // Reference: plan §6 OptionsDlg 控件表; PluginDemo/OptionsDlg.h
